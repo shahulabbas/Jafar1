@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech-to-Text Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            width: 80%;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speech-to-Text Tool</h1>
+    <p>Click the button below and start speaking. Your speech will be converted to text.</p>
+    <button id="start-btn">Start Recording</button>
+    <p><strong>Transcribed Text:</strong></p>
+    <textarea id="output" rows="10" cols="50" readonly></textarea>
+   
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const output = document.getElementById('output');
+
+        // Check for browser support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Your browser does not support Speech Recognition. Please try a different browser.");
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            startBtn.addEventListener('click', () => {
+                recognition.start();
+                startBtn.disabled = true;
+                startBtn.textContent = "Listening...";
+            });
+
+            recognition.addEventListener('result', (event) => {
+                let transcript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                output.value = transcript;
+            });
+
+            recognition.addEventListener('end', () => {
+                startBtn.disabled = false;
+                startBtn.textContent = "Start Recording";
+            });
+        }
+        const stopBtn = document.createElement('button');
+        stopBtn.id = 'stop-btn';
+        stopBtn.textContent = 'Stop Recording';
+        document.body.insertBefore(stopBtn, output);
+
+        stopBtn.addEventListener('click', () => {
+            recognition.stop();
+            startBtn.disabled = false;
+            startBtn.textContent = "Start Recording";
+        });
+    </script>
+</body>
+</html>
